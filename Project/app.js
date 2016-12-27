@@ -85,6 +85,12 @@ app.post('/login', function(req, res){
         req.session.password == result.password
         req.session.level = result.level
         req.session.exp = result.exp
+        if(result.level==1){
+          req.session.per = 100;
+        }
+        else {
+          req.session.per = 100+(200*result.level);
+        }
         res.redirect('/game')
       }
       else if(result.password == body.password){
@@ -144,22 +150,43 @@ app.get('/logout', function(req, res){
 })
 
 app.get('/game', function(req, res){
+  if(req.session.exp == req.session.per){
+    res.redirect('/level')
+  }
   fs.readFile('game.ejs', 'utf-8', function(err, data){
     res.end(ejs.render(data, {
       exp: req.session.exp,
-      level : req.session.level
+      level : req.session.level,
+      per : req.session.per
     }))
   })
 })
 
-app.post('/game', function(req, res){
-  var body = req.body;
-  req.session.level == body.level
-  req.session.exp = body.exp
+// app.post('/game', function(req, res){
+//   var body = req.body;
+//   if(req.session.exp == req.session.per){
+//     res.redirect('/level')
+//   }
+//   else {
+//     req.session.level == body.level
+//     req.session.exp = body.exp
+//     res.redirect('/game')
+//   }
+// })
+
+app.get('/exp', function(req, res){
+  req.session.exp++;
   res.redirect('/game')
 })
 
-app.get('/add', function(req, res){
-  req.session.exp++;
+app.get('/level', function(req, res){
+  console.log(req.session.level)
+  console.log(req.session.exp)
+  req.session.level++;
+  console.log(req.session.level)
+  req.session.exp = 0;
+  console.log(req.session.exp)
+  req.session.per = 100+(200*req.session.level);
+  console.log(req.session.per)
   res.redirect('/game')
 })
