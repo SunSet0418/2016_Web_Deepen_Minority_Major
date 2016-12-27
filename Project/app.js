@@ -36,7 +36,7 @@ var UserSchema = new schema({
   password : {
     type : String
   },
-  percent : {
+  level : {
     type : String
   },
   exp : {
@@ -80,14 +80,16 @@ app.post('/login', function(req, res){
     }
     else if(result){
       if(result.password == body.password){
-        console.log('Login : '+ result.username)
-        console.log('Data : '+ result)
         req.session.username == result.username
         req.session.id == result.id
         req.session.password == result.password
-        req.session.percent = result.percent
+        req.session.level = result.level
         req.session.exp = result.exp
         res.redirect('/game')
+      }
+      else if(result.password == body.password){
+        console.log('Password Error!')
+        res.redirect('/')
       }
     }
     else {
@@ -108,8 +110,8 @@ app.post('/register', function(req, res){
     username: body.username,
     id: body.id,
     password: body.password,
-    percent : '0',
-    exp : '0'
+    level : "1",
+    exp : "0"
   })
 
   User.findOne({
@@ -145,14 +147,19 @@ app.get('/game', function(req, res){
   fs.readFile('game.ejs', 'utf-8', function(err, data){
     res.end(ejs.render(data, {
       exp: req.session.exp,
-      percent : req.session.percent
+      level : req.session.level
     }))
   })
 })
 
 app.post('/game', function(req, res){
   var body = req.body;
-  req.session.percent == body.percent
+  req.session.level == body.level
   req.session.exp = body.exp
+  res.redirect('/game')
+})
+
+app.get('/add', function(req, res){
+  req.session.exp++;
   res.redirect('/game')
 })
